@@ -1,17 +1,17 @@
 # Intent-Driven OpenSpec Schema
 
 `intent-driven` is a proposal-to-tasks workflow for changes where contributor
-intent, observable behaviour, technical design, and durable architectural
-decisions should all be captured before implementation.
+intent, observable behaviour, technical design, UI design, and durable
+architectural decisions should all be captured before implementation.
 
 It keeps specs mergeable by default OpenSpec archive by generating
 `specs/<capability>/spec.md` files. The Markdown headings are the OpenSpec
 wrapper; the content inside each requirement and scenario should be written in
 Gherkin style with `GIVEN`, `WHEN`, and `THEN` steps.
 
-- Good fit: product or platform changes with meaningful behaviour and
-  long-lived design decisions, cross-module work, or architecture choices that
-  future changes should honor.
+- Good fit: product or platform changes with meaningful behaviour, a UI
+  surface, and long-lived design decisions, cross-module work, or architecture
+  choices that future changes should honor.
 - Not a good fit: small tactical fixes, docs-only changes, dependency bumps, or
   behaviour-only work where `behaviour-driven` is enough.
 
@@ -28,8 +28,13 @@ schema: intent-driven
 Artifact order:
 
 ```text
-proposal -> specs -> design -> adr -> tasks
+proposal
+├── specs
+└── ui-design ──> design ──> adr ──> tasks
 ```
+
+Specs and ui-design run in parallel after proposal. Ui-design feeds into design,
+which feeds into ADRs, which feeds into tasks.
 
 Gate expectations:
 
@@ -37,7 +42,20 @@ Gate expectations:
   behaviour specs.
 - `specs` creates one OpenSpec Markdown delta file per capability at
   `specs/<capability>/spec.md`.
-- `design` explains the implementation approach and accounts for currently
+- `ui-design` captures visual and interaction design details (tokens, layouts,
+  components, motion, accessibility) before technical design begins.
+
+  **Skipping ui-design**: If the change has no UI surface, create
+  `ui-design.md` with only the line below to satisfy the gate and unblock
+  `design`:
+
+  ```
+  > Not applicable — no UI surface.
+  ```
+
+  Do not leave the file empty. The gate looks for the file's existence.
+- `design` explains the implementation approach, informed by the UI
+  specification when `ui-design` was completed, and accounts for currently
   in-force ADRs.
 - `adr` records durable architecture decisions after design and before task
   planning.

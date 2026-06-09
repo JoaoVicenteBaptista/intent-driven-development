@@ -1,12 +1,19 @@
 name: intent-driven
 version: 1
-description: Intent-driven OpenSpec workflow - proposal -> Gherkin-style specs -> design -> adr -> tasks
+description: Intent-driven OpenSpec workflow - proposal -> Gherkin-style specs + ui-design -> design -> adr -> tasks
 artifacts:
   - id: proposal
     generates: proposal.md
     description: Initial proposal document outlining the change
     template: proposal.md
     instruction: >
+      BEFORE WRITING: Load the grill-me skill and complete its interview —
+      one question at a time, every decision branch (architecture, scope,
+      dependencies, design if applicable) explored and resolved. If this
+      change has a UI surface, also load the impeccable skill. The interview
+      is the gate. Do not write the proposal artifact until the interview is
+      finished.
+
       Create the proposal document that establishes WHY this change is needed.
 
 
@@ -177,6 +184,78 @@ artifacts:
 
       Good design docs explain the "why" behind technical decisions.
     requires:
+      - ui-design
+  - id: ui-design
+    generates: ui-design.md
+    description: UI design specification capturing all visual and interaction design details from the impeccable skill
+    template: ui-design.md
+    instruction: >
+      OPTIONAL ARTIFACT: If the change has no UI surface, signal this by
+      writing a ui-design.md containing only:
+
+      > Not applicable — no UI surface.
+
+      This satisfies the dependency and unblocks design. Do not leave the
+      file empty.
+
+      BEFORE WRITING: Load the impeccable skill. Read PRODUCT.md and DESIGN.md.
+      If DESIGN.md is missing, run `$impeccable document` to generate it first.
+      The impeccable skill's design guidance (color, typography, layout, motion,
+      interaction, copy) is the authority for this artifact.
+
+
+      Create the UI design specification that describes every visual and
+      interaction detail needed to implement the change. This bridges the gap
+      between technical design and implementation — it tells the developer
+      exactly what to build, pixel by pixel.
+
+
+      Sections:
+
+
+      - **Design Tokens**: OKLCH color palette (bg, surface, ink, accent, muted,
+      success, error) for dark mode. Typography scale (font families, weights,
+      sizes, line heights). Spacing scale. Border radii. Shadow elevations.
+      Define as CSS custom property names and values.
+
+
+      - **Layouts**: Page-level layout for each route in the change. Grid/flex
+      structure, column counts, max widths, responsive breakpoints. Include
+      ASCII diagrams for each layout.
+
+
+      - **Components**: For each reusable UI component, specify:
+        - Props/API surface (what data it accepts)
+        - Variants (e.g. primary/secondary buttons, compact/full cards)
+        - States: default, hover, focus, active, disabled, loading, empty, error
+        - Typography within the component
+        - Spacing and alignment
+        - Responsive behavior
+
+
+      - **Pages**: For each page in the change, specify:
+        - Component composition (which components used where)
+        - Data dependencies (what API data drives what UI)
+        - Loading states
+        - Empty states (no results, no properties)
+        - Error states (API failure, network error)
+        - Edge cases (long text, missing optional data, extreme filter values)
+
+
+      - **Motion**: Animation specs for page transitions, component
+      enter/exit, hover effects, carousel transitions. Respect
+      prefers-reduced-motion. Use @media (prefers-reduced-motion: reduce)
+      with crossfade or instant fallbacks.
+
+
+      - **Accessibility**: Focus order, keyboard navigation, ARIA labels,
+      alt text patterns, color contrast compliance (WCAG 2.1 AA minimum).
+
+
+      Reference the proposal for what to build and specs for behavioural
+      requirements. Every visual decision made here must trace back to a
+      capability in the proposal.
+    requires:
       - proposal
   - id: adr
     generates: "../../../adr/*.md"
@@ -261,8 +340,10 @@ artifacts:
       `openspec validate <change> --type change --strict` before archive.
 
 
-      Reference specs for what to build, design for how to build it, and
-      <repo>/adr/ for durable architectural commitments to honor.
+      Reference specs for what to build, design for how to build it,
+      <repo>/adr/ for durable architectural commitments to honor, and
+      ui-design.md for visual and interaction details (if the change
+      has a UI surface and the artifact was created).
 
       Each task should be verifiable - you know when it's done.
     requires:

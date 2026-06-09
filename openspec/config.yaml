@@ -8,8 +8,11 @@ schema: intent-driven
 rules:
   proposal:
     - Must use grill-me skill
+    - Must use impeccable skill
   design:
     - Must use c4-diagrams skill
+  ui-design:
+    - Must use impeccable skill
   adr:
     - Must use architectural-decision-records skill
   spec:
